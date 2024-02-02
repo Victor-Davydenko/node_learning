@@ -32,8 +32,7 @@ const homework2 = () => {
     { username: 'user3', password: 'password3' },
     { username: 'admin', password: 'admin123' }
   ];
-
-  async function authenticateUser(username: string, password: string): Promise<User> {
+  function authenticateUser(username: string, password: string): Promise<User> {
     return new Promise((resolve, reject) => {
       const user:User = users.find((user) => user.username === username);
       if (!user) {
