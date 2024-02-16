@@ -2,7 +2,6 @@ import 'dotenv/config';
 
 import app from './server';
 import { createDb } from './database/dbUtils/dbUtils';
-import hw3DownloadImageTask from './downloadFileTask/downloadFile';
 
 const PORT = process.env.PORT || 3001;
 
@@ -14,5 +13,3 @@ const startApp = () => {
 };
 
 startApp();
-
-hw3DownloadImageTask();
