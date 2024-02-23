@@ -1,34 +1,37 @@
 import { Request, Response } from 'express';
-import path from 'path';
 import UserService from '../services/UserService';
-import DbService from '../services/DbService';
 
 class UserController {
-
   constructor(private userService: UserService) {
   }
 
-  getUsers = async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response, next) => {
     try {
-      const users = await this.userService.getUsers();
-      return res.status(200).json(users);
+      const userData = req.body;
+      const user = await this.userService.login(userData);
+      return res.json({
+        status: 200,
+        message: 'User successfully logged in',
+        user
+      });
     } catch (e) {
-      res.status(404).json(e.message);
+      next(e);
     }
   };
 
-  createUser = async (req: Request, res: Response) => {
+  createUser = async (req: Request, res: Response, next) => {
     try {
-      const { login, password } = req.body;
-      if (!login || !password) {
-        res.status(401).json('Bad credentials was provided!');
-      }
-      const response = await this.userService.createUser({ login, password });
-      return res.json(response);
+      const { username, password, email } = req.body;
+      const user = await this.userService.createUser({ username, password, email });
+      return res.status(201).json({
+        status: 201,
+        message: 'User has been successfully created!',
+        user
+      });
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   };
 }
 
-export default new UserController(new UserService(new DbService(path.join(__dirname, '..', 'database' ,'db.json'))));
+export default new UserController(new UserService());
