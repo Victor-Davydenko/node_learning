@@ -1,7 +1,7 @@
 import ApiError from '../exception/ApiError';
 
 export const errorMiddlware = (error, req, res, next) => {
-  if (error instanceof ApiError) {
+  if (error.status !== 500) {
     return res.status(error.status).json({
       status: error.status,
       message: error.message,
