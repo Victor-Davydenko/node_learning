@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
+import { v4 } from 'uuid';
 import { UserDTO } from '../dtos/dtos';
 import ApiError from '../exception/ApiError';
+import tokenService from './TokenService';
 
 class UserService {
   users = [];
@@ -16,7 +18,10 @@ class UserService {
     if (!isPasswordCorrect) {
       throw ApiError.BadCredentials('Username or password is invalid');
     }
-    return new UserDTO(user);
+    const userDTO = new UserDTO(user);
+    const tokens = tokenService.generateTokens({ ...userDTO });
+    tokenService.saveToken(tokens.refreshToken);
+    return tokens;
   };
 
   createUser = async (newUser) => {
@@ -25,16 +30,40 @@ class UserService {
       throw ApiError.UserAlreadyExists();
     }
     const hashedPassword = await bcrypt.hash(newUser.password, 12);
-    this.users.push({
+    const user = {
+      id: v4(),
       username: newUser.username,
       email: newUser.email,
       password: hashedPassword
-    });
+    };
+    this.users.push(user);
 
     return new UserDTO(newUser);
+  };
+
+  refreshToken = (token) => {
+    if (!token) {
+      throw ApiError.UnauthorizedError();
+    }
+    const userData = tokenService.verifyToken(token, process.env.JWT_REFRESH_SECRET);
+    const tokenFromDB = tokenService.findToken(token);
+    if (!userData || !tokenFromDB) {
+      throw ApiError.UnauthorizedError();
+    }
+    const user = this.findUser(userData.id);
+    const userDTO = new UserDTO(user);
+    tokenService.removeToken(token);
+    const tokens = tokenService.generateTokens({...userDTO});
+    tokenService.saveToken(tokens.refreshToken);
+    return tokens;
+  };
+
+  findUser = (id) => {
+    const user = this.users.find((user) => user.id === id);
+    return user;
   };
 }
 
 
 
-export default UserService;
+export default new UserService();
