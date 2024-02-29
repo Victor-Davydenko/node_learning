@@ -29,7 +29,7 @@ class TokenService {
   };
 
   removeToken = (token) => {
-    this.tokens.filter((tokenFromDB) => tokenFromDB !== token);
+    this.tokens = this.tokens.filter((tokenFromDB) => tokenFromDB !== token);
   };
 }
 

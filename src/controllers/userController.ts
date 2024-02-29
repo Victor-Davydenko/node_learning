@@ -9,8 +9,8 @@ class UserController {
     try {
       const userData = req.body;
       const tokens = await this.userService.login(userData);
-      res.cookie('refresh', tokens.refreshToken, { httpOnly: true, maxAge: +process.env.REFRESH_COOKIE_MAX_AGE });
-      res.header('token', `Bearer ${tokens.accessToken}`);
+      res.header('Authorization', `Bearer ${tokens.accessToken}`);
+      res.header('refresh', tokens.refreshToken);
       return res.json({
         status: 200,
         message: 'User successfully logged in',
@@ -37,10 +37,10 @@ class UserController {
 
   refreshToken = (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies.refresh;
+      const refreshToken = req.headers.refresh;
       const tokens = this.userService.refreshToken(refreshToken);
-      res.cookie('refresh', tokens.refreshToken, { httpOnly: true, maxAge: +process.env.REFRESH_COOKIE_MAX_AGE });
-      res.header('token', `Bearer ${tokens.accessToken}`);
+      res.header('Authorization', `Bearer ${tokens.accessToken}`);
+      res.header('refresh', tokens.refreshToken);
       return res.json({
         status: 200,
         message: 'User successfully logged in',
