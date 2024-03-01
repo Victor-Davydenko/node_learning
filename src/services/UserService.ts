@@ -1,16 +1,22 @@
 import bcrypt from 'bcrypt';
-import { v4 } from 'uuid';
 import { UserDTO } from '../dtos/dtos';
 import ApiError from '../exception/ApiError';
 import tokenService from './TokenService';
+import { UserModel } from '../db/models/userModel';
+
+type TUser = {
+  username: string;
+  email: string;
+  password: string
+  id: string
+}
 
 class UserService {
-  users = [];
   constructor() {
   }
 
   login = async ({ username, password }) => {
-    const user = this.users.find((user) => user.username === username);
+    const user = await UserModel.findOne({ username }) as TUser;
     if (!user) {
       throw ApiError.BadCredentials('Username or password is invalid');
     }
@@ -25,40 +31,32 @@ class UserService {
   };
 
   createUser = async (newUser) => {
-    const candidate = this.users.find(({ username }) => newUser.username === username);
+    const candidate = await UserModel.findOne({ username: newUser.username });
     if (candidate) {
       throw ApiError.UserAlreadyExists();
     }
     const hashedPassword = await bcrypt.hash(newUser.password, 12);
     const user = {
-      id: v4(),
       username: newUser.username,
       email: newUser.email,
       password: hashedPassword
     };
-    this.users.push(user);
+    await UserModel.create(user);
 
     return new UserDTO(newUser);
   };
 
-  refreshToken = (user) => {
+  refreshToken = async (user) => {
     if (!user) {
       throw ApiError.UnauthorizedError();
     }
 
-    const userFromDB = this.findUser(user.id);
+    const userFromDB = await UserModel.findById(user.id) as TUser;
     const userDTO = new UserDTO(userFromDB);
     const tokens = tokenService.generateTokens({...userDTO});
     tokenService.saveToken(tokens.refreshToken);
     return tokens;
   };
-
-  findUser = (id) => {
-    const user = this.users.find((user) => user.id === id);
-    return user;
-  };
 }
-
-
 
 export default new UserService();
