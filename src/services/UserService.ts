@@ -26,7 +26,6 @@ class UserService {
     }
     const userDTO = new UserDTO(user);
     const tokens = tokenService.generateTokens({ ...userDTO });
-    tokenService.saveToken(tokens.refreshToken);
     return tokens;
   };
 
@@ -54,7 +53,6 @@ class UserService {
     const userFromDB = await UserModel.findById(user.id) as TUser;
     const userDTO = new UserDTO(userFromDB);
     const tokens = tokenService.generateTokens({...userDTO});
-    tokenService.saveToken(tokens.refreshToken);
     return tokens;
   };
 }
