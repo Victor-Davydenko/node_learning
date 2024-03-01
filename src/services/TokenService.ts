@@ -14,10 +14,10 @@ class TokenService {
     };
   };
 
-  verifyToken = (token, secretKey) => {
-    const userData = jwt.verify(token, secretKey) as JwtPayload;
-    return userData;
-  };
+  // verifyToken = (token, secretKey) => {
+  //   const userData = jwt.verify(token, secretKey) as JwtPayload;
+  //   return userData;
+  // };
 
   findToken = (token) => {
     const tokenFromDB = this.tokens.find((tokenFromDB) => tokenFromDB === token);

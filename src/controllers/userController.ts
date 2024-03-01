@@ -37,8 +37,8 @@ class UserController {
 
   refreshToken = (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.headers.refresh;
-      const tokens = this.userService.refreshToken(refreshToken);
+      const { user } = req;
+      const tokens = this.userService.refreshToken(user);
       res.header('Authorization', `Bearer ${tokens.accessToken}`);
       res.header('refresh', tokens.refreshToken);
       return res.json({

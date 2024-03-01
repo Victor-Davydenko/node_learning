@@ -41,18 +41,13 @@ class UserService {
     return new UserDTO(newUser);
   };
 
-  refreshToken = (token) => {
-    if (!token) {
+  refreshToken = (user) => {
+    if (!user) {
       throw ApiError.UnauthorizedError();
     }
-    const userData = tokenService.verifyToken(token, process.env.JWT_REFRESH_SECRET);
-    const tokenFromDB = tokenService.findToken(token);
-    if (!userData || !tokenFromDB) {
-      throw ApiError.UnauthorizedError();
-    }
-    const user = this.findUser(userData.id);
-    const userDTO = new UserDTO(user);
-    tokenService.removeToken(token);
+
+    const userFromDB = this.findUser(user.id);
+    const userDTO = new UserDTO(userFromDB);
     const tokens = tokenService.generateTokens({...userDTO});
     tokenService.saveToken(tokens.refreshToken);
     return tokens;
