@@ -1,7 +1,7 @@
 import passport from 'passport';
 import ApiError from '../exception/ApiError';
-const authMiddlware = (req, res, next) => {
-  passport.authenticate('jwt',{ session: false }, (err, user) => {
+const authMiddlware = (strategyName) => (req, res, next) => {
+  passport.authenticate(strategyName,{ session: false }, (err, user) => {
     if (err) {
       return next(err);
     }
