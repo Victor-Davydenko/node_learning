@@ -24,3 +24,28 @@ export const loginUserValidationSchema = Joi.object({
   password: Joi.string()
     .required(),
 });
+
+export const postValidationSchema = Joi.object({
+  title: Joi.string()
+    .required(),
+  body: Joi.string()
+    .required()
+});
+
+export const updatePostValidationSchema = Joi.object({
+  title: Joi.string()
+    .required(),
+  body: Joi.string()
+    .required(),
+  owner: Joi.string()
+    .required()
+});
+
+export const updatePostPropertyValidationSchema = Joi.object({
+  title: Joi.string()
+    .optional(),
+  body: Joi.string()
+    .optional(),
+  owner: Joi.string()
+    .required()
+}).or('title', 'body');
